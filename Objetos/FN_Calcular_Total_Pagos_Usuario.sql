@@ -1,4 +1,5 @@
 -- Creación de la función Calcular_Total_Pagos_Usuario
+DELIMITER //
 CREATE FUNCTION Calcular_Total_Pagos_Usuario(id_usuario_input INT)
 RETURNS DECIMAL(10, 2)
 DETERMINISTIC
@@ -9,9 +10,11 @@ BEGIN
     WHERE id_usuario = id_usuario_input;
     RETURN COALESCE(total, 0.00);
 END;
+//
+DELIMITER ;
 
 -- Uso de la función
--- SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
+SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
 
 /*
 Descripción:

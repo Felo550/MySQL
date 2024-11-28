@@ -1,4 +1,5 @@
 -- Creación del procedimiento almacenado Registrar_Inscripcion
+DELIMITER //
 CREATE PROCEDURE Registrar_Inscripcion(
     IN id_usuario_input INT,
     IN id_curso_input INT
@@ -25,10 +26,11 @@ BEGIN
         SET MESSAGE_TEXT = 'El usuario no tiene permisos para inscribirse.';
     END IF;
 END;
-
+//
+DELIMITER ;
 
 -- Uso del procedimiento
--- CALL Registrar_Inscripcion(1, 2);
+CALL Registrar_Inscripcion(1, 2);
 
 /*
 

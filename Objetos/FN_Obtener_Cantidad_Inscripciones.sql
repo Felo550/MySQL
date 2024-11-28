@@ -1,4 +1,5 @@
 -- Creación de la función Obtener_Cantidad_Inscripciones
+DELIMITER //
 CREATE FUNCTION Obtener_Cantidad_Inscripciones(id_usuario_input INT)
 RETURNS INT
 DETERMINISTIC
@@ -9,10 +10,11 @@ BEGIN
     WHERE id_usuario = id_usuario_input;
     RETURN cantidad;
 END;
-
+//
+DELIMITER ;
 -- Uso de la función
--- SELECT Obtener_Cantidad_Inscripciones(1) AS Total_Inscripciones;
-
+ SELECT Obtener_Cantidad_Inscripciones(1) AS Total_Inscripciones;
+ 
 /*Descripción:
 Devuelve la cantidad de inscripciones realizadas por un usuario específico.
 Objetivo:
