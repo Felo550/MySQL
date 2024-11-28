@@ -8,9 +8,8 @@ CREATE TABLE Usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     contraseña VARCHAR(255) NOT NULL,
-    fecha_registro DATE DEFAULT CURRENT_DATE,
-    id_rol INT,
-    CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES Roles(id_rol)
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_rol INT
 );
 
 -- Tabla Roles
@@ -26,9 +25,8 @@ CREATE TABLE Cursos (
     descripcion TEXT,
     precio DECIMAL(10, 2) NOT NULL,
     nivel VARCHAR(50) NOT NULL,
-    fecha_creacion DATE DEFAULT CURRENT_DATE,
-    id_categoria INT,
-    CONSTRAINT fk_curso_categoria FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria)
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_categoria INT
 );
 
 -- Tabla Categorias
@@ -42,9 +40,7 @@ CREATE TABLE Inscripciones (
     id_inscripcion INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT,
     id_curso INT,
-    fecha_inscripcion DATE DEFAULT CURRENT_DATE,
-    CONSTRAINT fk_inscripcion_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    CONSTRAINT fk_inscripcion_curso FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso)
+    fecha_inscripcion DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla Pagos
@@ -53,11 +49,35 @@ CREATE TABLE Pagos (
     id_usuario INT,
     id_curso INT,
     monto DECIMAL(10, 2) NOT NULL,
-    fecha_pago DATE DEFAULT CURRENT_DATE,
-    metodo_pago VARCHAR(50),
-    CONSTRAINT fk_pago_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    CONSTRAINT fk_pago_curso FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso)
+    fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP,
+    metodo_pago VARCHAR(50)
 );
+
+-- Agregando restricciones de claves foráneas
+ALTER TABLE Usuarios
+ADD CONSTRAINT fk_usuario_rol
+FOREIGN KEY (id_rol) REFERENCES Roles(id_rol);
+
+ALTER TABLE Cursos
+ADD CONSTRAINT fk_curso_categoria
+FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria);
+
+ALTER TABLE Inscripciones
+ADD CONSTRAINT fk_inscripcion_usuario
+FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario);
+
+ALTER TABLE Inscripciones
+ADD CONSTRAINT fk_inscripcion_curso
+FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso);
+
+ALTER TABLE Pagos
+ADD CONSTRAINT fk_pago_usuario
+FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario);
+
+ALTER TABLE Pagos
+ADD CONSTRAINT fk_pago_curso
+FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso);
+
 
 -- Descripciones de los campos y sus abreviaturas:
 -- Usuarios
