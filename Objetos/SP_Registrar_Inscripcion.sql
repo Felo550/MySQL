@@ -1,11 +1,15 @@
--- Creación del procedimiento almacenado Registrar_Inscripcion
-DELIMITER //
-CREATE PROCEDURE Registrar_Inscripcion(
+USE CorcheaAcademyDB;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS SP_Registrar_Inscripcion$$
+
+CREATE PROCEDURE SP_Registrar_Inscripcion(
     IN id_usuario_input INT,
     IN id_curso_input INT
 )
 BEGIN
-    -- Validar si el usuario tiene el rol de estudiante
+    -- Validar si el usuario existe y tiene el rol de estudiante
     IF EXISTS (
         SELECT 1 FROM Usuarios
         WHERE id_usuario = id_usuario_input AND id_rol = 3
@@ -23,24 +27,23 @@ BEGIN
         END IF;
     ELSE
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El usuario no tiene permisos para inscribirse.';
+        SET MESSAGE_TEXT = 'El usuario no tiene permisos para inscribirse o no existe.';
     END IF;
-END;
-//
+END$$
+
 DELIMITER ;
 
--- Uso del procedimiento
-CALL Registrar_Inscripcion(1, 2);
+-- Ejemplo de uso:
+-- CALL SP_Registrar_Inscripcion(1, 2);
 
 /*
-
 Descripción:
 Inserta una nueva inscripción para un usuario y un curso específicos.
 Objetivo:
 Simplificar la lógica para registrar una inscripción, validando que el curso existe y que el usuario tiene un rol permitido (Estudiante).
-Tablas involucradas:
--Usuarios
--Cursos
--Inscripciones
 
+Tablas involucradas:
+- Usuarios
+- Cursos
+- Inscripciones
 */
