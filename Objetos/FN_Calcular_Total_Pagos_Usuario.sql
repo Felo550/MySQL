@@ -1,26 +1,25 @@
--- Creación de la función Calcular_Total_Pagos_Usuario
+USE CorcheaAcademyDB;
+
 DELIMITER //
+
+DROP FUNCTION IF EXISTS Calcular_Total_Pagos_Usuario;
+
 CREATE FUNCTION Calcular_Total_Pagos_Usuario(id_usuario_input INT)
 RETURNS DECIMAL(10, 2)
 DETERMINISTIC
 BEGIN
     DECLARE total DECIMAL(10, 2);
-    SELECT SUM(monto) INTO total
-    FROM Pagos
-    WHERE id_usuario = id_usuario_input;
+    
+    -- Corregido: Se suma el monto de las inscripciones del usuario
+    SELECT SUM(p.monto) INTO total
+    FROM Pagos p
+    JOIN Inscripciones i ON p.id_inscripcion = i.id_inscripcion
+    WHERE i.id_usuario = id_usuario_input;
+
     RETURN COALESCE(total, 0.00);
-END;
-//
+END //
+
 DELIMITER ;
 
--- Uso de la función
-SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
-
-/*
-Descripción:
-Calcula el monto total pagado por un usuario específico.
-Objetivo:
-Obtener el total de los pagos realizados por un usuario dado su id_usuario.
-Tablas involucradas:
--Pagos
-*/
+-- Ejemplo de uso:
+--SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
