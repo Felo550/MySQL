@@ -147,14 +147,52 @@ Corchea Academy ofrece una plataforma de aprendizaje en línea que permite a los
 
 ## 7. Scripts de Creación de Objetos en la Base de Datos
 
-Aquí debes incluir todos los scripts SQL para la creación de tus objetos de base de datos. Como ya los has proporcionado en tu mensaje anterior, solo haré referencia a ellos.
+Debido a la longitud de los scripts, se ubican directamente en la carpeta Objetos del proyecto
 
-**Nota:** Los scripts se encuentran en tu mensaje anterior, con las correcciones necesarias para eliminar `DELIMITER` y los triggers para compatibilidad con dbdiagram.io, pero en un entorno de produccion si son funcionales.
+## 7.1 Funciones
 
-### 7.1 Funciones
+### 7.1.1 `FN_Calcular_Total_Pagos_Usuario`
 
-*   `FN_Calcular_Total_Pagos_Usuario`
-*   `FN_Obtener_Cantidad_Inscripciones`
+**Descripción:** Calcula el total de pagos realizados por un usuario específico.
+
+**Parámetros:**
+
+*   `id_usuario_input` (INT): ID del usuario para el que se calculará el total de pagos.
+
+**Retorna:**
+
+*   `DECIMAL(10, 2)`: Monto total pagado por el usuario. Retorna `0.00` si el usuario no ha realizado ningún pago o no existe.
+
+**Tablas involucradas:**
+
+*   `Pagos`
+*   `Inscripciones`
+
+**Ejemplo de uso:**
+
+```sql
+SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
+
+### 7.1.2 `FN_Obtener_Cantidad_Inscripciones`
+
+**Descripción:** Obtiene la cantidad total de inscripciones realizadas por un usuario específico.
+
+**Parámetros:**
+
+*   `id_usuario_input` (INT): ID del usuario para el que se obtendrá la cantidad de inscripciones.
+
+**Retorna:**
+
+*   `INT`: Cantidad total de inscripciones del usuario. Retorna `0` si el usuario no tiene inscripciones o no existe.
+
+**Tablas involucradas:**
+
+*   `Inscripciones`
+
+**Ejemplo de uso:**
+
+```sql
+SELECT Obtener_Cantidad_Inscripciones(1) AS Total_Inscripciones;
 
 ### 7.2 Procedimientos Almacenados
 
