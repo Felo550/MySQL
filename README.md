@@ -169,9 +169,9 @@ Debido a la longitud de los scripts, se ubican directamente en la carpeta Objeto
 *   `Inscripciones`
 
 **Ejemplo de uso:**
-
 ```sql
 SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
+```
 
 ### 7.1.2 `FN_Obtener_Cantidad_Inscripciones`
 
@@ -193,66 +193,272 @@ SELECT Calcular_Total_Pagos_Usuario(1) AS Total_Pagado;
 
 ```sql
 SELECT Obtener_Cantidad_Inscripciones(1) AS Total_Inscripciones;
+```
 
-### 7.2 Procedimientos Almacenados
+## 7.2 Procedimientos Almacenados
 
-*   `SP_Actualizar_Nivel_Curso`
-*   `SP_Agregar_Comentario_Foro`
-*   `SP_Registrar_Inscripcion`
+### 7.2.1 `SP_Actualizar_Nivel_Curso`
 
-### 7.3 Triggers
+**Descripción:** Actualiza el nivel de un curso existente.
 
-*   `trg_registrar_fecha_completado`
-*   `trg_verificar_pago_inscripcion`
+**Objetivo:** Permitir la modificación del nivel de un curso, validando que tanto el curso como el nuevo nivel existan en la base de datos.
 
-### 7.4 Vistas
+**Parámetros:**
 
-*   `Vista_Comentarios_Foro`
-*   `Vista_Detalle_Cursos`
-*   `Vista_Instructores_Cursos`
-*   `Vista_Lecciones_Por_Curso`
-*   `Vista_Resumen_Pagos`
+*   `id_curso_input` (INT, IN): ID del curso a actualizar.
+*   `id_nivel_nuevo` (INT, IN): ID del nuevo nivel a asignar.
 
-## 8. Roles y Permisos
+**Tablas involucradas:**
 
-El script `roles_users.sql` crea los siguientes roles y usuarios:
+*   `Cursos`
+*   `Niveles`
 
-*   **Roles:**
-    *   `role_select_vistas`: Permite seleccionar datos de las vistas.
-    *   `role_crud_restaurantes`: Permite realizar operaciones CRUD en tablas relacionadas con restaurantes (No está relacionado con Corchea Academy, es de la referencia.  Ajusta esto según tus necesidades).
-    *   `role_creacion_usuarios`: Permite crear y eliminar usuarios.
-*   **Usuarios:**
-    *   Dos usuarios por cada rol, con contraseñas especificadas en el script (recuerda cambiarlas en un entorno de producción).
+**Ejemplo de uso:**
 
-## 9. Back up de la Base de Datos
+```sql
+CALL SP_Actualizar_Nivel_Curso(1, 2); -- Cambia el nivel del curso con ID 1 al nivel con ID 2
+```
+### 7.2.2 `SP_Agregar_Comentario_Foro`
 
-Se puede generar un backup de la base de datos ejecutando el comando `make backup-db` desde la terminal. Esto genera un archivo `.sql` con la estructura y los datos de la base de datos en el momento del backup. (El script para esto está en tu `Makefile`).
+**Descripción:** Agrega un nuevo comentario a un foro específico, realizado por un usuario dado.
 
-## 10. Herramientas y Tecnologías Usadas
+**Objetivo:** Simplificar la lógica para agregar un comentario, validando que el foro y el usuario existen.
 
-*   **Makefile:** Para la automatización de tareas y la gestión del proyecto.
-*   **Docker:** Para la creación de un contenedor con el entorno de la base de datos.
+**Parámetros:**
+
+*   `id_foro_input` (INT, IN): ID del foro al que se agregará el comentario.
+*   `id_usuario_input` (INT, IN): ID del usuario que realiza el comentario.
+*   `comentario_input` (TEXT, IN): Texto del comentario.
+
+**Tablas involucradas:**
+
+*   `Foros`
+*   `Usuarios`
+*   `Comentarios_Foro`
+
+**Ejemplo de uso:**
+
+```sql
+CALL SP_Agregar_Comentario_Foro(1, 1, 'Este es un comentario de prueba.');
+```
+### 7.2.3 `SP_Registrar_Inscripcion`
+
+**Descripción:** Inserta una nueva inscripción para un usuario y un curso específicos.
+
+**Objetivo:** Simplificar la lógica para registrar una inscripción, validando que el curso existe y que el usuario tiene un rol permitido (Estudiante).
+
+**Parámetros:**
+
+*   `id_usuario_input` (INT, IN): ID del usuario que se inscribe.
+*   `id_curso_input` (INT, IN): ID del curso al que se inscribe el usuario.
+
+**Tablas involucradas:**
+
+*   `Usuarios`
+*   `Cursos`
+*   `Inscripciones`
+
+**Ejemplo de uso:**
+
+```sql
+CALL SP_Registrar_Inscripcion(1, 2);
+```
+
+## 7.3 Triggers
+
+### 7.3.1 `trg_registrar_fecha_completado`
+
+**Descripción:** Registra la fecha y hora actuales en el campo `fecha_completado` de la tabla `Progreso_Leccion` cuando un estudiante completa una lección.
+
+**Objetivo:** Automatizar el registro de la fecha de finalización de una lección, facilitando el seguimiento del progreso del estudiante.
+
+**Tabla involucrada:**
+
+*   `Progreso_Leccion`
+
+**Evento:**
+
+*   `BEFORE UPDATE` en `Progreso_Leccion`
+
+**Condiciones:**
+* Se actualiza la fila en la tabla `Progreso_Leccion`.
+* El valor de `NEW.fecha_completado` es `NOT NULL` (es decir, se está estableciendo una fecha de completado).
+* El valor de `OLD.fecha_completado` es `NULL` (es decir, la lección no estaba completada previamente).
+**Acciones:**
+
+*   Establece el valor de `NEW.fecha_completado` a `NOW()`, que es la fecha y hora actuales.
+
+### 7.3.2 `trg_verificar_pago_inscripcion`
+
+**Descripción:** Impide la eliminación de una inscripción si existe un pago asociado a ella.
+
+**Objetivo:** Mantener la integridad de los datos, evitando la eliminación accidental de inscripciones que ya han sido pagadas.
+
+**Tabla involucrada:**
+
+*   `Inscripciones`
+
+**Tablas relacionadas:**
+*   `Pagos`
+
+**Evento:**
+
+*   `BEFORE DELETE` en `Inscripciones`
+
+**Condiciones:**
+
+* Se intenta eliminar una fila de la tabla `Inscripciones`.
+* Existe al menos una fila en la tabla `Pagos` donde el valor de `id_inscripcion` coincide con el valor de `OLD.id_inscripcion` de la fila que se intenta eliminar en `Inscripciones`.
+
+**Acciones:**
+
+*   Si se cumple la condición, se genera un error con `SQLSTATE '45000'` y el mensaje: `'No se puede eliminar la inscripción porque tiene un pago asociado.'`
+*   La eliminación de la inscripción no se lleva a cabo.
+
+## 7.4 Vistas
+
+### 7.4.1 `Vista_Comentarios_Foro`
+
+**Descripción:** Muestra los comentarios realizados en los foros, incluyendo el ID del foro, el ID y nombre del curso al que pertenece el foro, el ID del comentario, el ID, nombre, y apellido del usuario que realizó el comentario, el contenido del comentario y la fecha en que se realizó.
+
+**Objetivo:** Facilitar la consulta de los comentarios en los foros, mostrando información consolidada de las tablas `Foros`, `Comentarios_Foro`, `Usuarios` y `Cursos`.
+
+**Tablas involucradas:**
+
+*   `Foros`
+*   `Comentarios_Foro`
+*   `Usuarios`
+*   `Cursos`
+
+**Columnas:**
+
+*   `ID_Foro` (INT): ID del foro.
+*   `ID_Curso` (INT): ID del curso al que pertenece el foro.
+*   `Nombre_Curso` (VARCHAR): Nombre del curso.
+*   `ID_Comentario` (INT): ID del comentario.
+*   `ID_Usuario` (INT): ID del usuario que realizó el comentario.
+*   `Nombre_Usuario` (VARCHAR): Nombre del usuario.
+*   `Apellido_Usuario` (VARCHAR): Apellido del usuario.
+*   `Comentario` (TEXT): Contenido del comentario.
+*   `Fecha_Comentario` (DATETIME): Fecha en que se realizó el comentario.
+
+**Ejemplo de consulta:**
+
+```sql
+SELECT * FROM Vista_Comentarios_Foro;
+```
+### 7.4.2 `Vista_Detalle_Cursos`
+
+**Descripción:** Muestra información detallada de los cursos, incluyendo el nombre del curso, descripción, precio, categoría y nivel.
+
+**Objetivo:** Facilitar la consulta rápida de información completa de los cursos, combinando datos de las tablas `Cursos`, `Categorias` y `Niveles`.
+
+**Tablas involucradas:**
+
+*   `Cursos`
+*   `Categorias`
+*   `Niveles`
+
+**Columnas:**
+
+*   `ID_Curso` (INT): ID del curso.
+*   `Nombre_Curso` (VARCHAR): Nombre del curso.
+*   `Descripcion` (TEXT): Descripción del curso.
+*   `Precio` (DECIMAL): Precio del curso.
+*   `Categoria` (VARCHAR): Categoría del curso.
+*   `Nivel` (VARCHAR): Nivel del curso.
+
+**Ejemplo de consulta:**
+
+```sql
+SELECT * FROM Vista_Detalle_Cursos;
+```
+
+### 7.4.3 `Vista_Instructores_Cursos`
+
+**Descripción:** Muestra la relación entre instructores y los cursos que imparten, incluyendo el ID y nombre del instructor, y el ID y nombre del curso.
+
+**Objetivo:** Facilitar la consulta de qué instructor imparte cada curso, combinando datos de las tablas `Instructores`, `Curso_Instructor` y `Cursos`.
+
+**Tablas involucradas:**
+
+*   `Instructores`
+*   `Curso_Instructor`
+*   `Cursos`
+
+**Columnas:**
+
+*   `ID_Instructor` (INT): ID del instructor.
+*   `Nombre_Instructor` (VARCHAR): Nombre del instructor.
+*   `Apellido_Instructor` (VARCHAR): Apellido del instructor.
+*   `ID_Curso` (INT): ID del curso.
+*   `Nombre_Curso` (VARCHAR): Nombre del curso.
+
+**Ejemplo de consulta:**
+
+```sql
+SELECT * FROM Vista_Instructores_Cursos;
+```
+### 7.4.4 `Vista_Lecciones_Por_Curso`
+
+**Descripción:** Muestra las lecciones asociadas a cada curso, incluyendo el ID y nombre del curso, y el ID, título y orden de la lección.
+
+**Objetivo:** Facilitar la consulta de las lecciones que componen cada curso, combinando datos de las tablas `Cursos` y `Lecciones`.
+
+**Tablas involucradas:**
+
+*   `Cursos`
+*   `Lecciones`
+
+**Columnas:**
+
+*   `ID_Curso` (INT): ID del curso.
+*   `Nombre_Curso` (VARCHAR): Nombre del curso.
+*   `ID_Leccion` (INT): ID de la lección.
+*   `Titulo_Leccion` (VARCHAR): Título de la lección.
+*   `Orden_Leccion` (INT): Orden de la lección dentro del curso.
+
+**Ejemplo de consulta:**
+
+```sql
+SELECT * FROM Vista_Lecciones_Por_Curso;
+```
+
+### 7.4.5 `Vista_Resumen_Pagos`
+
+**Descripción:** Muestra un resumen de los pagos realizados, incluyendo información del usuario, el curso al que corresponde el pago, el monto, la fecha y el método de pago.
+
+**Objetivo:** Facilitar la consulta de los pagos realizados, mostrando información consolidada de las tablas `Pagos`, `Inscripciones`, `Usuarios` y `Cursos`.
+
+**Tablas involucradas:**
+
+*   `Pagos`
+*   `Inscripciones`
+*   `Usuarios`
+*   `Cursos`
+
+**Columnas:**
+
+*   `ID_Pago` (INT): ID del pago.
+*   `ID_Usuario` (INT): ID del usuario que realizó el pago.
+*   `Nombre_Usuario` (VARCHAR): Nombre del usuario.
+*   `Apellido_Usuario` (VARCHAR): Apellido del usuario.
+*   `ID_Curso` (INT): ID del curso al que corresponde el pago.
+*   `Nombre_Curso` (VARCHAR): Nombre del curso.
+*   `Monto_Pagado` (DECIMAL): Monto del pago.
+*   `Fecha_Pago` (DATETIME): Fecha del pago.
+*   `Metodo_Pago` (VARCHAR): Método de pago utilizado.
+
+**Ejemplo de consulta:**
+
+```sql
+SELECT * FROM Vista_Resumen_Pagos;
+```
+
+## 8. Herramientas y Tecnologías Usadas
+
 *   **MySQL:** Como sistema de gestión de bases de datos relacional (versión: latest).
 *   **MySQL Workbench:** Para la administración visual de la base de datos y la ejecución de consultas.
-*   **Mockaroo:** Para la generación de datos ficticios para la base de datos.
 *   **dbdiagram.io:** Para la generación del diagrama entidad-relación.
-
-## 11. Cómo Levantar el Proyecto en CodeSpaces GitHub
-
-1.  **Entorno:** El proyecto está configurado para ejecutarse en un entorno de desarrollo basado en contenedores utilizando CodeSpaces de GitHub.
-2.  **Archivos Clave:**
-    *   `env`: Contiene las variables de entorno, incluidas las contraseñas y datos sensibles. **(Asegúrate de que este archivo esté en `.gitignore` y no se suba al repositorio público).**
-    *   `Makefile`: Contiene comandos para simplificar la creación y gestión del proyecto.
-    *   `docker-compose.yml`: Define los servicios para la creación de la base de datos en contenedores Docker.
-
-### Pasos para Arrancar el Proyecto
-
-1.  **Abre la terminal** en tu CodeSpace.
-2.  **Ejecuta los siguientes comandos:**
-    *   `make`: Para construir y ejecutar los contenedores Docker (si hay un error de conexión al socket, vuelve a ejecutarlo).
-    *   `make clean-db`: Para limpiar la base de datos (elimina datos existentes).
-    *   `make test-db`: Para visualizar los datos de cada tabla (opcional).
-    *   `make backup-db`: Para realizar un backup de la base de datos (opcional).
-    *   `make access-db`: Para acceder a la base de datos a través de la línea de comandos de MySQL.
 
 ---
