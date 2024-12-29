@@ -1,5 +1,5 @@
 <center>
-![alt text](<logo.png>)
+<img src="./img/logo.png" width="50%">
 </center>
 
 # Corchea Academy - Proyecto Final Base de Datos
@@ -141,7 +141,9 @@ Corchea Academy ofrece una plataforma de aprendizaje en línea que permite a los
 |                     | nombre\_ciudad      | Nombre Ciudad     | VARCHAR(100)       |               |
 
 ## 6. Diagrama Entidad-Relación
-![alt text](<CorcheaAcademyDB (3).png>)
+<center>
+<img src="./img/CorcheaAcademyDB (3).png" width="70%">
+</center>
 
 ## 7. Scripts de Creación de Objetos en la Base de Datos
 
