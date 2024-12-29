@@ -1,18 +1,16 @@
 <center>
-<img src="https://www.corchea.es/wp-content/uploads/2020/03/cropped-corchea-logo-2-e1586425865255-180x50.png" style="width: 50% ; aspect-ratio:16/9">
+![alt text](<logo.png>)
 </center>
 
-# <center>Corchea Academy - Proyecto Final Base de Datos</center>
-<center>
+# Corchea Academy - Proyecto Final Base de Datos
 
-**Alumno:**  [Felipe Torres]
+**Alumno:** Felipe Torres
 
-**Comisión:** [59430]
+**Comisión:** 59430
 
-**Tutor:** [ANicolás Maugeri]
+**Tutor:** Nicolás Maugeri
 
-**Docente:** [Anderson Michel TORRES]
-</center>
+**Docente:** Anderson Michel TORRES
 
 ---
 
